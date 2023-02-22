@@ -1,3 +1,4 @@
+import { ResponseInterface } from 'src/global-interface/global-interface.interface'
 import { CreateUserDto } from './dto/create-user.dto'
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
@@ -13,17 +14,21 @@ export class UserService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<string> {
+  async create(createUserDto: CreateUserDto): Promise<ResponseInterface> {
     const saltPassword = await hash(createUserDto.password, 10)
     try {
       await this.userModel.create({
         ...createUserDto,
         password: saltPassword,
       })
-      return 'User Created'
+      return { msg: 'User Created', data: 'User Created', success: true }
     } catch (error) {
       console.log(error)
-      return 'an error has occurred'
+      return {
+        msg: 'an error has occurred',
+        data: 'an error has occurred',
+        success: false,
+      }
     }
   }
 
@@ -35,7 +40,7 @@ export class UserService {
     return this.userModel.findOne({ email: email }).exec()
   }
 
-  async login(email: string, password: string): Promise<string> {
+  async login(email: string, password: string): Promise<ResponseInterface> {
     try {
       const res = await this.findByEmail(email)
       const correctPassword = await compare(password, res.password)
@@ -49,13 +54,17 @@ export class UserService {
           strings.secret,
           { expiresIn: '8h' },
         )
-        return token
+        return { msg: 'User loged in', data: token, success: true }
       } else {
-        return 'Wrong data'
+        return { msg: 'Wrong data', data: 'Wrong data', success: false }
       }
     } catch (error) {
       console.error('[error]' + error)
-      return 'wrong Data'
+      return {
+        msg: 'an error has occurred',
+        data: 'an error has occurred',
+        success: false,
+      }
     }
   }
 }
