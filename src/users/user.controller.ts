@@ -1,6 +1,6 @@
 import { CreateUserDto } from './dto/create-user.dto'
 import { UserService } from './user.service'
-import { Body, Controller, Post } from '@nestjs/common'
+import { Headers, Body, Controller, Get, Post } from '@nestjs/common'
 import { ResponseInterface } from 'src/global-interface/global-interface.interface'
 
 @Controller('users')
@@ -12,6 +12,13 @@ export class UserController {
     @Body() createUserDto: CreateUserDto,
   ): Promise<ResponseInterface> {
     return await this.userService.create(createUserDto)
+  }
+
+  @Get('userData')
+  async getUserData(
+    @Headers() headers: { authorization: string },
+  ): Promise<ResponseInterface> {
+    return await this.userService.getUserData(headers.authorization)
   }
 
   @Post('login')

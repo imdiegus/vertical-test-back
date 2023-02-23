@@ -37,6 +37,22 @@ export class EmailService {
             $or: [{ from: email }, { to: email }],
           },
         },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'from',
+            foreignField: 'email',
+            as: 'fromData',
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'to',
+            foreignField: 'email',
+            as: 'toData',
+          },
+        },
       ])
       return {
         success: true,

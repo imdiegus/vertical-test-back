@@ -5,8 +5,8 @@ import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import { User, UserDocument } from './schemas/user.schema'
 import { hash, compare } from 'bcrypt'
-import { sign } from 'jsonwebtoken'
 import strings from 'src/constanst/strings'
+import { sign, verify } from 'jsonwebtoken'
 
 @Injectable()
 export class UserService {
@@ -40,6 +40,23 @@ export class UserService {
     return this.userModel.findOne({ email: email }).exec()
   }
 
+  async getUserData(token: string): Promise<ResponseInterface> {
+    const userData = verify(token, strings.secret)
+    if (userData) {
+      return {
+        msg: 'User loged in',
+        data: userData,
+        success: true,
+      }
+    } else {
+      return {
+        msg: 'an error has occurred',
+        data: 'an error has occurred',
+        success: false,
+      }
+    }
+  }
+
   async login(email: string, password: string): Promise<ResponseInterface> {
     try {
       const res = await this.findByEmail(email)
@@ -54,7 +71,16 @@ export class UserService {
           strings.secret,
           { expiresIn: '8h' },
         )
-        return { msg: 'User loged in', data: token, success: true }
+        return {
+          msg: 'User loged in',
+          data: {
+            token: token,
+            firstName: res.firstName,
+            lastName: res.lastName,
+            email: res.email,
+          },
+          success: true,
+        }
       } else {
         return { msg: 'Wrong data', data: 'Wrong data', success: false }
       }
