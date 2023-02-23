@@ -15,11 +15,6 @@ export interface ResponseInterface {
     | JwtPayload
 }
 export interface EmailResponseInterface extends EmailDocument {
-  to: string[]
-  from: string
-  subject: string
-  message: string
-  time: string
   fromData: UserDocument
   toData: UserDocument[]
 }
